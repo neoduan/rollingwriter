@@ -8,7 +8,8 @@ import (
 	"sync"
 	"time"
 
-	"github.com/robfig/cron"
+	//"github.com/robfig/cron"
+	"github.com/neoduan/cron"
 )
 
 type manager struct {
@@ -38,7 +39,7 @@ func NewManager(c *Config) (Manager, error) {
 	case WithoutRolling:
 		return m, nil
 	case TimeRolling:
-		if err := m.cr.AddFunc(c.RollingTimePattern, func() {
+		if _, err := m.cr.AddFunc(c.RollingTimePattern, func() {
 			m.fire <- m.GenLogFileName(c)
 		}); err != nil {
 			return nil, err
@@ -130,9 +131,15 @@ func (m *manager) GenLogFileName(c *Config) (filename string) {
 	m.lock.Lock()
 	// [path-to-log]/filename.log.2007010215041517
 	if c.Compress {
-		filename = path.Join(c.LogPath, c.FileName+".log.gz."+m.startAt.Format(c.TimeTagFormat))
+		//filename = path.Join(c.LogPath, c.FileName+".log.gz."+m.startAt.Format(c.TimeTagFormat))
+
+		//@BYD: 修改为后缀为log
+		filename = path.Join(c.LogPath, c.FileName+"-"+m.startAt.Format(c.TimeTagFormat)+".log.gz")
 	} else {
-		filename = path.Join(c.LogPath, c.FileName+".log."+m.startAt.Format(c.TimeTagFormat))
+		//filename = path.Join(c.LogPath, c.FileName+".log."+m.startAt.Format(c.TimeTagFormat))
+
+		//@BYD: 修改为后缀为log
+		filename = path.Join(c.LogPath, c.FileName+"-"+m.startAt.Format(c.TimeTagFormat)+".log")
 	}
 	// reset the start time to now
 	m.startAt = time.Now()
